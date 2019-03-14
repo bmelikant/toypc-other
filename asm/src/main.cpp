@@ -19,7 +19,6 @@ int main (int argc, char *argv[]) {
 
 	// try to open a file on the input tokenizer
 	if (!it.open ("test-asm/test.asm")) {
-
 		std::cout << "Error opening input file: test.asm" << std::endl;
 		return -1;
 	}
@@ -29,18 +28,15 @@ int main (int argc, char *argv[]) {
 	ta.assemble ();
 
 	if (!ta.errors()) {
-
 		std::cout << "Assembly success!" << std::endl;
 		return 0;
 	}
 
 	else {
-
 		std::cout << "Assembly failed with errors:" << std::endl;
-
-		for (ssize_t i = 0; i < ta.err_count(); i++)
+		for (ssize_t i = 0; i < ta.err_count(); i++) {
 			std::cout << "Error (line " << ta.err_at(i).get_lineno() << "): " << ta.err_at(i).get_err() << std::endl;
-
+		}
 		return -1;
 	}
 }

@@ -1,0 +1,18 @@
+## ignore autoconf files
+Makefile.in
+Makefile
+configure
+config.status
+config.log
+aclocal.m4
+build-aux/
+.deps/
+autom4te.cache
+stamp-h1
+config.h.in
+config.h
+.dirstamp
+
+## ignore built objects
+*.o
+toyasm

@@ -109,7 +109,6 @@ void ToyAssembler::math_argument_one (unsigned char opcode) {
 
 	// there must be a second token
 	if (cur_token != "\n") {
-
 		if (register_match (stringlower(cur_token)))
 			math_argument_two_register (rmone, bits16);
 		else if (mref_match (cur_token))

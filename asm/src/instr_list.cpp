@@ -20,6 +20,7 @@ const std::string digit_pattern		= "([0-9]*(d|D)?)";
 const std::string binary_pattern	= "([0|1]*(b|B))";
 
 const std::string number_pattern = xdigit_pattern + "|" + digit_pattern + "|" + binary_pattern;
+const std::string register_pattern = "(r|R){1}[0-4]{1}";
 
 // instruction list definition
 const std::unordered_map<std::string, InstructionPair> instructions = {
@@ -84,29 +85,15 @@ const std::unordered_map<std::string, InstructionPair> instructions = {
 	{ "dd", { DIRECTIVE, 0x04 }}
 };
 
-// initialize the register list
-const std::unordered_map<std::string, RegisterPair> rm_values {
-
-	{ "ra", { 0x01, false }},
-	{ "rb", { 0x02, false }},
-	{ "rc", { 0x03, true }},
-	{ "rx", { 0x04, true }},
-	{ "ry", { 0x05, true }},
-	{ "si", { 0x06, true }},
-	{ "di", { 0x07, true }}
-};
-
 // try to match an instruction
 bool instr_match (std::string s) {
-
 	int count = instructions.count(stringlower(s));
-
+	
 	if (count > 0) {
-
-		InstructionPair instr = instructions.find (stringlower(s))->second;
-
-		if (instr.type != DIRECTIVE)
+		InstructionPair instr = instructions.find(stringlower(s))->second;
+		if (instr.type != DIRECTIVE) {
 			return true;
+		}
 	}
 
 	return false;
@@ -114,7 +101,6 @@ bool instr_match (std::string s) {
 
 // try to match a directive
 bool directive_match (std::string s) {
-
 	// if the list contains this directive, we have a hit!
 	if (instructions.find (stringlower (s)) != instructions.end () &&
 			instructions.find (stringlower(s))->second.type == DIRECTIVE)
@@ -125,38 +111,31 @@ bool directive_match (std::string s) {
 
 // try to match a token to a register
 bool register_match (std::string s) {
-
-	return (rm_values.find(stringlower(s)) != rm_values.end ());
+	return std::regex_match(s, std::regex(register_pattern));
 }
 
 // try to match a token to a memory reference
 bool mref_match (std::string s) {
-
-	if (s[0] == '[' && s[s.length()] == ']')
-		return true;
-
-	return false;
+	return (s[0] == '[' && s[s.length()] == ']');
 }
 
 // try to match a token to a number
 bool number_match (std::string s) {
-
 	return std::regex_match(s, std::regex (number_pattern));
 }
 
 // try to match a token to a forward reference or label
 bool fwdref_match (std::string s) {
-
 	return std::regex_match (s, std::regex(label_pattern));
 }
 
 // convert a std::string to lowercase
 std::string stringlower (std::string s) {
-
 	std::string lower = s;
 
-	for (std::string::size_type i = 0; i < lower.length(); i++)
+	for (std::string::size_type i = 0; i < lower.length(); i++) {
 		lower[i] = std::tolower(lower[i]);
+	}
 
 	return lower;
 }
