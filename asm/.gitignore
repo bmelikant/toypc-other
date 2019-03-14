@@ -16,3 +16,7 @@ config.h
 ## ignore built objects
 *.o
 toyasm
+
+## ignore vscode and settings
+../.settings/
+.vscode/
