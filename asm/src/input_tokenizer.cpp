@@ -14,24 +14,26 @@
 #include <cstring>
 #include <cerrno>
 
+using namespace std;
+
 const char* ws = " \t\n\r\f\v";
 
 // trim from end of string (right)
-inline std::string& rtrim(std::string& s, const char* t = ws)
+inline string& rtrim(string& s, const char* t = ws)
 {
     s.erase(s.find_last_not_of(t) + 1);
     return s;
 }
 
 // trim from beginning of string (left)
-inline std::string& ltrim(std::string& s, const char* t = ws)
+inline string& ltrim(string& s, const char* t = ws)
 {
     s.erase(0, s.find_first_not_of(t));
     return s;
 }
 
 // trim from both ends of string (left & right)
-inline std::string& trim(std::string& s, const char* t = ws)
+inline string& trim(string& s, const char* t = ws)
 {
     return ltrim(rtrim(s, t), t);
 }
@@ -45,10 +47,10 @@ InputTokenizer::InputTokenizer() {
 }
 
 // open our input tokenizer. return false if error
-bool InputTokenizer::open(std::string fname) {
+bool InputTokenizer::open(string fname) {
 
 	// open the file for read
-	infile.open (fname, std::ifstream::in);
+	infile.open (fname, ifstream::in);
 	return (infile.is_open());
 }
 
@@ -58,13 +60,13 @@ void InputTokenizer::next_line () {
 	if (infile.is_open()) {
 
 		// grab the next line and store it in both lines
-		std::getline (infile, linedata);
+		getline (infile, linedata);
 		lineorig = linedata.substr(0, (linedata.find_first_of (";") - 1));
 	}
 }
 
 // process the next token out of the line data
-std::string InputTokenizer::next_token () {
+string InputTokenizer::next_token () {
 
 	// blank out our token
 	token = "";
@@ -140,8 +142,8 @@ std::string InputTokenizer::next_token () {
 	return token;
 }
 
-std::string InputTokenizer::token_data	() { return token; }
-std::string InputTokenizer::line_data 	() { return lineorig; }
+string InputTokenizer::token_data	() { return token; }
+string InputTokenizer::line_data 	() { return lineorig; }
 
 bool InputTokenizer::is_good () {
 

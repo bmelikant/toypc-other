@@ -13,7 +13,6 @@
 #include <string>
 
 enum InstructionType {
-
 	ONEBYTE_OPCODE,
 	MATH_OPCODE,
 	BRANCH_OPCODE,
@@ -24,14 +23,14 @@ enum InstructionType {
 
 // hold data on the instructions
 struct InstructionPair {
-
 	InstructionType type;
 	unsigned char opcode;
+	int allowed_argument_one;
+	int allowed_argument_two;
 };
 
 // hold data on the registers
 struct RegisterPair {
-
 	int rmval;
 	bool bits16;
 };

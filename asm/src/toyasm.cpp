@@ -12,6 +12,8 @@
 #include <string>
 #include <iostream>
 
+using namespace std;
+
 ToyAssembler::ToyAssembler (InputTokenizer *it, CodeOutputList *ol) {
 
 	this->it = it;
@@ -92,7 +94,7 @@ void ToyAssembler::instruction () {
 	if (type == ONEBYTE_OPCODE && cur_token == "\n")
 		return;
 	else if (type == MATH_OPCODE && register_match (cur_token))
-		math_argument_one (opcode);
+		math_argument_one(opcode);
 	else
 		store_error ("Invalid combination of opcode and operands");
 }
@@ -194,7 +196,7 @@ Error ToyAssembler::err_at(int i) {
 }
 
 // store an error into the list (takes care of all needed adjustments)
-void ToyAssembler::store_error (std::string err) {
+void ToyAssembler::store_error (string err) {
 
 	Error new_err;
 	errors_exist = line_err = true;
@@ -214,11 +216,11 @@ void ToyAssembler::line_reset_state () {
 }
 
 // add an error to the error list
-void Error::set_error(std::string err, int lineno) {
+void Error::set_error(string err, int lineno) {
 
 	this->err = err;
 	this->lineno = lineno;
 }
 
-std::string Error::get_err () { return err; }
+string Error::get_err () { return err; }
 int Error::get_lineno () { return this->lineno; }

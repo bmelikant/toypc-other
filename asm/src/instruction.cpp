@@ -7,6 +7,8 @@
 
 #include <asm.h>
 
+using namespace std;
+
 // intitialize this instruction
 Instruction::Instruction () {
 	byte_sz = 0;
@@ -20,7 +22,7 @@ void Instruction::add_instr_byte (unsigned char byteval) {
 }
 
 // add a forward reference to this instruction's data
-void Instruction::add_fwd_ref (std::string ref) {
+void Instruction::add_fwd_ref (string ref) {
 	this->fwd_ref = ref;
 	byte_sz += 2;
 }
@@ -50,6 +52,6 @@ int Instruction::get_size () {
 }
 
 // get the forward ref label contained in this Instruction
-std::string Instruction::get_fwd_ref () {
+string Instruction::get_fwd_ref () {
 	return this->fwd_ref;
 }

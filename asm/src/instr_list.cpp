@@ -9,75 +9,46 @@
 #include <asm.h>
 
 #include <regex>
+#include <vector>
+
+using namespace std;
+
+// valid argument type definitions
+static const int ARGUMENTS_NONE 		= 0;
+static const int ARGUMENTS_REGISTER 	= 1;
+static const int ARGUMENTS_MEMREF 		= 2;
+static const int ARGUMENTS_IMMEDIATE 	= 4;
+static const int ARGUMENTS_CONSTANT		= 8;
 
 // pattern definitions
-const std::string label_pattern = "[a-zA-Z0-9_]*:?";
-const std::string mref_pattern	= "\\[[a-zA-Z0-9_]*\\]";
-const std::string str_pattern	= "\".*\"|'.*'";
+static const string label_pattern = "[a-zA-Z0-9_]*:?";
+static const string mref_pattern	= "\\[[a-zA-Z0-9_]*\\]";
+static const string str_pattern	= "\".*\"|'.*'";
 
-const std::string xdigit_pattern	= "(0x[a-fA-F0-9]*)|([a-fA-F0-9]*(h|H))";
-const std::string digit_pattern		= "([0-9]*(d|D)?)";
-const std::string binary_pattern	= "([0|1]*(b|B))";
+static const string xdigit_pattern	= "(0x[a-fA-F0-9]*)|([a-fA-F0-9]*(h|H))";
+static const string digit_pattern		= "([0-9]*(d|D)?)";
+static const string binary_pattern	= "([0|1]*(b|B))";
 
-const std::string number_pattern = xdigit_pattern + "|" + digit_pattern + "|" + binary_pattern;
-const std::string register_pattern = "(r|R){1}[0-4]{1}";
+static const string number_pattern = xdigit_pattern + "|" + digit_pattern + "|" + binary_pattern;
+static const string register_pattern = "(r|R){1}[0-4]{1}";
 
 // instruction list definition
-const std::unordered_map<std::string, InstructionPair> instructions = {
+static const unordered_map<string, vector<InstructionPair>> instructions = {
 
-	// one byte opcodes
-	{ "nop", { ONEBYTE_OPCODE, 0x60 }},
-	{ "hlt", { ONEBYTE_OPCODE, 0x10 }},
-	{ "cpuid", { ONEBYTE_OPCODE, 0x15 }},
-	{ "pshf", { ONEBYTE_OPCODE, 0x16 }},
-	{ "popf", { ONEBYTE_OPCODE, 0x17 }},
-	{ "pshall", { ONEBYTE_OPCODE, 0x50 }},
-	{ "popall", { ONEBYTE_OPCODE, 0x51 }},
-	{ "jmpdi", { ONEBYTE_OPCODE, 0x46 }},
-	{ "in", { ONEBYTE_OPCODE, 0x55 }},
-	{ "out", { ONEBYTE_OPCODE, 0x56 }},
-	{ "ldstr", { ONEBYTE_OPCODE, 0x40 }},
-	{ "ststr", { ONEBYTE_OPCODE, 0x41 }},
-	{ "ret", { ONEBYTE_OPCODE, 0x45 }},
-	{ "iret", { ONEBYTE_OPCODE, 0x46 }},
-
-	// math opcodes
-	{ "sto", { MATH_OPCODE, 0x01 }},
-	{ "lod", { MATH_OPCODE, 0x02 }},
-	{ "add", { MATH_OPCODE, 0x03 }},
-	{ "sub", { MATH_OPCODE, 0x04 }},
-	{ "mul", { MATH_OPCODE, 0x05 }},
-	{ "div", { MATH_OPCODE, 0x06 }},
-	{ "mod", { MATH_OPCODE, 0x07 }},
-	{ "and", { MATH_OPCODE, 0x11 }},
-	{ "or", { MATH_OPCODE, 0x12 }},
-	{ "xor", { MATH_OPCODE, 0x13 }},
-	{ "cmp", { MATH_OPCODE, 0x14 }},
-	{ "shl", { MATH_OPCODE, 0x0a }},
-	{ "shr", { MATH_OPCODE, 0x0b }},
-
-	// branch instructions
-	{ "call", { BRANCH_OPCODE, 0x0e }},
-	{ "jmp", { BRANCH_OPCODE, 0x0f }},
-	{ "je", { BRANCH_OPCODE, 0x1f }},
-	{ "jne", { BRANCH_OPCODE, 0x2f }},
-	{ "jg", { BRANCH_OPCODE, 0x3f }},
-	{ "jng", { BRANCH_OPCODE, 0x4f }},
-	{ "jl", { BRANCH_OPCODE, 0x5f }},
-	{ "jnl", { BRANCH_OPCODE, 0x6f }},
-	{ "jz", { BRANCH_OPCODE, 0x7f }},
-	{ "jnz", { BRANCH_OPCODE, 0x8f }},
-	{ "jc", { BRANCH_OPCODE, 0x9f }},
-	{ "jnc", { BRANCH_OPCODE, 0xaf }},
-
-	// stack instructions
-	{ "psh", { STACK_OPCODE, 0x08 }},
-	{ "pop", { STACK_OPCODE, 0x09 }},
-
-	// special instructions
-	{ "inc", { SPECIAL_OPCODE, 0x30 }},
-	{ "dec", { SPECIAL_OPCODE, 0x37 }},
-	{ "int", { SPECIAL_OPCODE, 0x16 }},
+	// single byte opcodes
+	{ "nop", { ONEBYTE, 0xFE, (ARGUMENTS_NONE),(ARGUMENTS_NONE) }},
+	{ "stfz", { ONEBYTE, 0x10, (ARGUMENTS_NONE),(ARGUMENTS_NONE) }},
+	{ "stfc", { ONEBYTE, 0x30, (ARGUMENTS_NONE),(ARGUMENTS_NONE) }},
+	{ "stfg", { ONEBYTE, 0x50, (ARGUMENTS_NONE),(ARGUMENTS_NONE) }},
+	{ "stfl", { ONEBYTE, 0x70, (ARGUMENTS_NONE),(ARGUMENTS_NONE) }},
+	{ "clfz", { ONEBYTE, 0x90, (ARGUMENTS_NONE),(ARGUMENTS_NONE) }},
+	{ "clfc", { ONEBYTE, 0xB0, (ARGUMENTS_NONE),(ARGUMENTS_NONE) }},
+	{ "clfg", { ONEBYTE, 0xD0, (ARGUMENTS_NONE),(ARGUMENTS_NONE) }},
+	{ "clfl", { ONEBYTE, 0xF0, (ARGUMENTS_NONE),(ARGUMENTS_NONE) }},
+	{ "halt", { ONEBYTE, 0xFF, (ARGUMENTS_NONE),(ARGUMENTS_NONE) }},
+	
+	// two byte opcodes
+	{ "mov", { TWOBYTE, 0x01, (ARGUMENTS_REGISTER),(ARGUMENTS_REGISTER) }},
 
 	// directives
 	{ "db", { DIRECTIVE, 0x01 }},
@@ -86,7 +57,7 @@ const std::unordered_map<std::string, InstructionPair> instructions = {
 };
 
 // try to match an instruction
-bool instr_match (std::string s) {
+bool instr_match (string s) {
 	int count = instructions.count(stringlower(s));
 	
 	if (count > 0) {
@@ -100,7 +71,7 @@ bool instr_match (std::string s) {
 }
 
 // try to match a directive
-bool directive_match (std::string s) {
+bool directive_match (string s) {
 	// if the list contains this directive, we have a hit!
 	if (instructions.find (stringlower (s)) != instructions.end () &&
 			instructions.find (stringlower(s))->second.type == DIRECTIVE)
@@ -110,31 +81,31 @@ bool directive_match (std::string s) {
 }
 
 // try to match a token to a register
-bool register_match (std::string s) {
-	return std::regex_match(s, std::regex(register_pattern));
+bool register_match (string s) {
+	return regex_match(s, regex(register_pattern));
 }
 
 // try to match a token to a memory reference
-bool mref_match (std::string s) {
+bool mref_match (string s) {
 	return (s[0] == '[' && s[s.length()] == ']');
 }
 
 // try to match a token to a number
-bool number_match (std::string s) {
-	return std::regex_match(s, std::regex (number_pattern));
+bool number_match (string s) {
+	return regex_match(s, regex (number_pattern));
 }
 
 // try to match a token to a forward reference or label
-bool fwdref_match (std::string s) {
-	return std::regex_match (s, std::regex(label_pattern));
+bool fwdref_match (string s) {
+	return regex_match (s, regex(label_pattern));
 }
 
-// convert a std::string to lowercase
-std::string stringlower (std::string s) {
-	std::string lower = s;
+// convert a string to lowercase
+string stringlower (string s) {
+	string lower = s;
 
-	for (std::string::size_type i = 0; i < lower.length(); i++) {
-		lower[i] = std::tolower(lower[i]);
+	for (string::size_type i = 0; i < lower.length(); i++) {
+		lower[i] = tolower(lower[i]);
 	}
 
 	return lower;

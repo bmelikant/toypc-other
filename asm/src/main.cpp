@@ -11,6 +11,8 @@
 //#include <preproc.h>
 #include <asm.h>
 
+using namespace std;
+
 // program entry point
 int main (int argc, char *argv[]) {
 
@@ -19,7 +21,7 @@ int main (int argc, char *argv[]) {
 
 	// try to open a file on the input tokenizer
 	if (!it.open ("test-asm/test.asm")) {
-		std::cout << "Error opening input file: test.asm" << std::endl;
+		cout << "Error opening input file: test.asm" << endl;
 		return -1;
 	}
 
@@ -28,14 +30,14 @@ int main (int argc, char *argv[]) {
 	ta.assemble ();
 
 	if (!ta.errors()) {
-		std::cout << "Assembly success!" << std::endl;
+		cout << "Assembly success!" << endl;
 		return 0;
 	}
 
 	else {
-		std::cout << "Assembly failed with errors:" << std::endl;
+		cout << "Assembly failed with errors:" << endl;
 		for (ssize_t i = 0; i < ta.err_count(); i++) {
-			std::cout << "Error (line " << ta.err_at(i).get_lineno() << "): " << ta.err_at(i).get_err() << std::endl;
+			cout << "Error (line " << ta.err_at(i).get_lineno() << "): " << ta.err_at(i).get_err() << endl;
 		}
 		return -1;
 	}
